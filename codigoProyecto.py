@@ -56,7 +56,9 @@ def menuUsuario():
                     'deuda': cantidadDeposito + 100,
 
                 })
-
+                sleep(2)
+                menuUsuario()
+                
             else:
                 print("Su cuenta no tiene los fondos necesarios en el balance para poder hacer este deposito")
                 print("¿Quiere pedir un prestamo para pagar el deposito?")
@@ -72,6 +74,8 @@ def menuUsuario():
                         'deuda': (cantidadDeposito + 100) * 1.7,
 
                     })
+                sleep(2)
+                menuUsuario()
 
                 else:
                     sleep(2)
@@ -80,6 +84,8 @@ def menuUsuario():
     #Ver balance total = balance - Deuda
     elif opcionUsuario.lower() == 'c':
         print("El balance en su cuenta es de:   ", money['balance'] - money['deuda'])
+        sleep(2)
+        menuUsuario()
 
 #Menu de Inicio
 
