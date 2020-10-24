@@ -19,17 +19,17 @@ tiempoIntervalo = 2.5
 
 def menuUsuario():
     print("'a' para ingresar dinero a su cuenta. \n'b' para depositar dinero en otra cuenta \n'c' para verificar el balance en su cuenta")
-    menu = input("Su opción es:   ")
+    opcionUsuario = input("Su opción es:   ")
     global money_ref 
     money_ref = db.reference("Usuarios/" + userName + "/dinero")
     money = money_ref.get()
 
     #Agrega balance, si tiene Deuda se resta a esta y se agrega lo que deje a balance
 
-    if menu == 'a':
+    if opcionUsuario.lower() == 'a':
         sumaMoney = int(input("Digite el monto a ingresar:   "))
         totalMoney = usuarios[userName]['dinero']['balance'] + sumaMoney
-        money_ref.set({
+        money_ref.update({
             'balance':totalMoney,
 
         })
@@ -38,19 +38,48 @@ def menuUsuario():
 
     #Enviar dinero a otra cuenta con cd y nm, Si deposito < balance, se acumula deuda
 
-    if menu == 'b':
+    if opcionUsuario.lower() == 'b':
         print("Ingrese el nombre y código de la cuenta a la cual depositara dinero")
         nombreDeposito = input("Nombre de la cuenta:   ")
         codigoDeposito = int(input("Código de la cuenta:   "))
         if nombreDeposito in usuarios and codigoDeposito == usuarios[nombreDeposito]['codigo']:
             print("Listo! Ahora necesitamos que digite la cantidad de dinero que va a depositar a ",nombreDeposito)
             cantidadDeposito = int(input("Cantidad de dinero a depositar:   "))
-            if cantidadDeposito < money['balance']:
-                print("hello")
+            if cantidadDeposito < (money['balance'] - money['deuda']):
+                usuarioDepositado = db.reference('Usuarios/' + nombreDeposito + '/dinero')
+                depositoAgregado = cantidadDeposito + usuarios[nombreDeposito]['dinero']['balance']
+                usuarioDepositado.update({
+                    'balance': depositoAgregado,
+
+                })
+                money_ref.update({
+                    'deuda': cantidadDeposito + 100,
+
+                })
+
+            else:
+                print("Su cuenta no tiene los fondos necesarios en el balance para poder hacer este deposito")
+                print("¿Quiere pedir un prestamo para pagar el deposito?")
+                respuesta = input("Si o No:   ")
+                if respuesta.lower() == "si":
+                    usuarioDepositado = db.reference('Usuarios/' + nombreDeposito + '/dinero')
+                    depositoAgregado = cantidadDeposito + usuarios[nombreDeposito]['dinero']['balance']
+                    usuarioDepositado.update({
+                        'balance': depositoAgregado,
+
+                    })
+                    money_ref.update({
+                        'deuda': (cantidadDeposito + 100) * 1.7,
+
+                    })
+
+                else:
+                    sleep(2)
+                    menuUsuario()    
 
     #Ver balance total = balance - Deuda
-    elif menu == 'c':
-        print("El balance en su cuenta es de:   ", usuarios[userName]['dinero'])
+    elif opcionUsuario.lower() == 'c':
+        print("El balance en su cuenta es de:   ", money['balance'] - money['deuda'])
 
 #Menu de Inicio
 
@@ -67,13 +96,14 @@ def menuInicio():
             menuInicio()
         else:    
             passwordNewU = int(input("Ingrese su contraseña:  "))
-            codigoNewU = 10
+            codigoNewU = 10 #cambiar a uno aleatorio
             ref.update({
                 nombreNewU:{
                     'password': passwordNewU, 
                     'codigo': codigoNewU,
                     'dinero':{
                         'balance': 0,
+                        'deuda': 0,
                         } ,
                     },
                 })
