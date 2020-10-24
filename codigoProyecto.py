@@ -1,23 +1,24 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+from tkinter import *
+from numpy import random
 from time import sleep
 
 # Fetch the service account key JSON file contents
-cred = credentials.Certificate('C:/Users/diana/OneDrive/Documentos/Haiko/proyectoOctubre/proyecto/clave_Json/clave.json')
+cred = credentials.Certificate('C:/Users/diana/OneDrive/Documentos/Haiko/proyecto/clave_Json/clave.json')
 # Initialize the app with a service account, granting admin privileges       
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://proyecto-haiko-base-de-datos.firebaseio.com/'
 })
 
+tiempoIntervalo = 2.5
 ref = db.reference("Usuarios")
 usuarios = ref.get()
-userName = []
-tiempoIntervalo = 2.5
 
 #Menu de Usuario
 
-def menuUsuario():
+def menuUsuario(userName):
     print("'a' para ingresar dinero a su cuenta. \n'b' para depositar dinero en otra cuenta \n'c' para verificar el balance en su cuenta")
     opcionUsuario = input("Su opción es:   ")
     global money_ref 
@@ -34,7 +35,7 @@ def menuUsuario():
 
         })
         print("Listo!! su balance ha sido actualizado")
-        menuUsuario()
+        menuUsuario(userName)
 
     #Enviar dinero a otra cuenta con cd y nm, Si deposito < balance, se acumula deuda
 
@@ -57,8 +58,8 @@ def menuUsuario():
 
                 })
                 sleep(2)
-                menuUsuario()
-                
+                menuUsuario(userName)
+
             else:
                 print("Su cuenta no tiene los fondos necesarios en el balance para poder hacer este deposito")
                 print("¿Quiere pedir un prestamo para pagar el deposito?")
@@ -74,18 +75,17 @@ def menuUsuario():
                         'deuda': (cantidadDeposito + 100) * 1.7,
 
                     })
-                sleep(2)
-                menuUsuario()
-
-                else:
                     sleep(2)
-                    menuUsuario()    
+                    menuUsuario(userName)
+                elif respuesta.lower() == "no":
+                    sleep(2)
+                    menuUsuario(userName)    
 
     #Ver balance total = balance - Deuda
     elif opcionUsuario.lower() == 'c':
         print("El balance en su cuenta es de:   ", money['balance'] - money['deuda'])
         sleep(2)
-        menuUsuario()
+        menuUsuario(userName)
 
 #Menu de Inicio
 
@@ -102,7 +102,7 @@ def menuInicio():
             menuInicio()
         else:    
             passwordNewU = int(input("Ingrese su contraseña:  "))
-            codigoNewU = 10 #cambiar a uno aleatorio
+            codigoNewU = random.randint(1000)
             ref.update({
                 nombreNewU:{
                     'password': passwordNewU, 
@@ -115,7 +115,7 @@ def menuInicio():
                 })
             print("Listo! Su usuario es: ", nombreNewU, "\nSu codigo es: ", codigoNewU) 
             sleep(tiempoIntervalo)
-            menuInicio()   
+            menuUsuario(nombreNewU)   
     
     elif accion.lower() == 'b':
         nombreSignIn = input("Ingrese el nombre de usuario de su cuenta:  ")
@@ -124,9 +124,7 @@ def menuInicio():
             passwordSignIn = int(input("Ingrese la constraseña de su cuenta:  "))
             if passwordSignIn == usuarios[nombreSignIn]['password']:
                 print("Bienvenido Usuario: ", nombreSignIn)
-                global userName
-                userName = nombreSignIn
-                menuUsuario()
+                menuUsuario(nombreSignIn)
             else:
                 print("Su contraseña esta mal \nVuelva a intentar")
                 sleep(tiempoIntervalo)
