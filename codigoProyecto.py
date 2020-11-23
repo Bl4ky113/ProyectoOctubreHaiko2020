@@ -1,7 +1,17 @@
+#Made By Bl4ky113 & XicXac
+
+#Librerias Firebase
+
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from tkinter import *
+
+#Librerias tkinter
+
+import tkinter as t
+
+#Otras librerias
+
 from numpy import random
 from time import sleep
 
@@ -9,14 +19,153 @@ from time import sleep
 cred = credentials.Certificate('C:/Users/diana/OneDrive/Documentos/Haiko/proyecto/clave_Json/clave.json')
 # Initialize the app with a service account, granting admin privileges       
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://proyecto-haiko-base-de-datos.firebaseio.com/'
+    'databaseURL': 'https://bankdatabase-haiko.firebaseio.com/'
 })
 
-tiempoIntervalo = 2.5
-ref = db.reference("Usuarios")
+"""  Variables  """
+
+ref = db.reference("bankdatabase-haiko")
 usuarios = ref.get()
 
-#Menu de Usuario
+"""  configuración tkinter  """
+
+base = t.Tk()
+base.title("Banco Virtual Haiko")
+base.geometry('1000x500')
+
+"""  Menu de inicio """
+
+#Titulo
+divTitulo = t.Frame(base,
+    #Border
+    borderwidth = 3,
+    relief = "solid",
+    )
+
+labelTitulo = t.Label(divTitulo,
+    #Texto
+    text = 'Banco Virtual Haiko.',
+    font = ("Arial Bold", 30)
+    )
+
+divTitulo.pack()
+labelTitulo.pack()
+
+
+#Saludo
+divSaludo = t.Frame(base,
+    #Border
+    borderwidth = 1,
+    relief = "solid",
+    )
+
+labelSaludo = t.Label(divSaludo,
+    #Texto
+    text = "¡¡Bienvenido a El Banco Virtual de Haiko!!",
+    font = ("Arial Bold", 20),
+    )
+
+divSaludo .pack()
+labelSaludo.pack()
+
+#Texto o Introduccion
+divTexto = t.Frame(base)
+
+labelTexto = t.Label(divTexto,
+    #Texto
+    text = "Ingrese que acción quiere realizar.",
+    font = ("Arial Bold", 14),
+    )
+
+divTexto.pack()
+labelTexto.pack()
+
+#Opciones
+
+def menuInicio ():
+    print("perro")
+
+divOpciones = t.Frame(base,
+    #Border
+    borderwidth = 3,
+    relief = "solid",
+    )
+
+btnRegistrarse = t.Button(divOpciones, #Crea una cuenta a el usuario & inicia sesion con esta
+    #Texto
+    text = 'Crear Cuenta',
+    font = ("Arial", 10),
+
+    #Function
+    command = menuInicio,
+
+    #Padding
+    padx = 15,
+    pady  = 5,
+
+    #H&W
+    height = 2,
+    width = 30,
+    )
+
+btnIniciar = t.Button(divOpciones, #Inicia la Sesion del usuario en una cuenta ya hecha
+    #Texto
+    text = "Iniciar Sesion",
+    font = ("Arial", 10),
+
+    #Function
+    command = menuInicio,
+
+    #Padding
+    padx = 15,
+    pady = 5,
+
+    #H&W
+    height = 2,
+    width = 10,
+    )
+
+btnBorrar = t.Button(divOpciones, #Borra la cuenta de un usuario
+    #Texto
+    text = "Borrar Cuenta",
+    font = ("Arial", 10),
+
+    #Function
+    command = menuInicio,
+    
+    #padding
+    padx = 15,
+    pady = 5,
+    
+    #H&W
+    height = 2,
+    width = 10,
+    )
+
+divOpciones.pack(
+    #Margin
+    pady = 20,
+    )
+
+btnRegistrarse.pack(side = "top",
+    #Margin
+    padx = 20,
+    pady = 30,
+    )
+
+btnIniciar.pack(side = "right",
+    #Margin
+    padx = 30,
+    pady = 30,
+    )
+
+btnBorrar.pack(side = "left",
+    #Margin
+    padx = 30,
+    pady = 30,
+    )
+
+"""#Menu de Usuario
 
 def menuUsuario(userName):
     print("'a' para ingresar dinero a su cuenta. \n'b' para depositar dinero en otra cuenta \n'c' para verificar el balance en su cuenta")
@@ -153,5 +302,4 @@ def menuInicio():
         print("Esa Opción no está definida en el programa\nVuelva a intentar")
         sleep(tiempoIntervalo)
         menuInicio()
-
-menuInicio()
+"""
