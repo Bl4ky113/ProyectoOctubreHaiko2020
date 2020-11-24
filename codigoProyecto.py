@@ -27,69 +27,185 @@ firebase_admin.initialize_app(cred, {
 ref = db.reference("bankdatabase-haiko")
 usuarios = ref.get()
 
-"""  configuración tkinter  """
-
-base = t.Tk()
-base.title("Banco Virtual Haiko")
-base.geometry('1000x500')
-
 """  Menu de inicio """
 
+#Base del Menu Inicio (Ventana)
+baseMenuInicio = t.Tk()
+baseMenuInicio.title("Banco Virtual Haiko")
+baseMenuInicio.geometry('1000x500')
+
 #Titulo
-divTitulo = t.Frame(base,
+divTitulo = t.Frame(baseMenuInicio,
     #Border
     borderwidth = 3,
     relief = "solid",
-    )
+)
 
 labelTitulo = t.Label(divTitulo,
     #Texto
     text = 'Banco Virtual Haiko.',
-    font = ("Arial Bold", 30)
-    )
+    font = ("Arial Bold", 30),
 
-divTitulo.pack()
+    #Padding
+    padx = 5,
+    pady = 5,
+)
+
+divTitulo.pack(
+    #Margin
+    padx = 10,
+    pady = 10,
+)
+
 labelTitulo.pack()
 
 
 #Saludo
-divSaludo = t.Frame(base,
+divSaludo = t.Frame(baseMenuInicio,
     #Border
     borderwidth = 1,
     relief = "solid",
-    )
+)
 
 labelSaludo = t.Label(divSaludo,
     #Texto
     text = "¡¡Bienvenido a El Banco Virtual de Haiko!!",
     font = ("Arial Bold", 20),
-    )
 
-divSaludo .pack()
+    #Padding
+    padx = 5,
+    pady = 5,
+)
+
+divSaludo .pack(
+    #Margin
+    padx = 10,
+    pady = 10,
+)
+
 labelSaludo.pack()
 
 #Texto o Introduccion
-divTexto = t.Frame(base)
+divTexto = t.Frame(baseMenuInicio)
 
 labelTexto = t.Label(divTexto,
     #Texto
     text = "Ingrese que acción quiere realizar.",
     font = ("Arial Bold", 14),
-    )
+)
 
-divTexto.pack()
+divTexto.pack(
+    #Margin
+    padx = 5,
+    pady = 5,
+)
+
 labelTexto.pack()
 
 #Opciones
 
-def menuInicio ():
-    print("perro")
+def crearCuenta ():
+    #Base Crear & Nueva Cuenta
+    baseCrearCuenta = t.Toplevel()
+    baseCrearCuenta.title("Crear Nueva Cuenta")
+    baseCrearCuenta.geometry('1000x500')
 
-divOpciones = t.Frame(base,
+    #Titulo
+    divTitulo = t.Frame(baseCrearCuenta,
+        #border
+        borderwidth = 2,
+        relief = "solid",
+)
+
+    labelTitulo = t.Label(divTitulo,
+        #Texto
+        text = "Crear una Nueva Cuenta",
+        font = ("Arial Bold", 20),
+
+        #Padding
+        padx = 5,
+        pady = 5,
+)
+    
+    divTitulo.pack(
+        #Margin
+        padx = 10,
+        pady = 10,
+    )
+    labelTitulo.pack()
+
+    #Texto Instrucciones
+    divTexto = t.Frame(baseCrearCuenta,
+        #Border
+        borderwidth = 3,
+        relief = "solid",
+    )
+
+    labelTexto = t.Label(divTexto,
+        #Texto
+        text = "Ingrese el nombre de su nueva Cuenta: ",
+        font = ("Arial", 14),
+
+        #Padding
+        padx = 5,
+        pady = 5,
+    )
+
+    divTexto.pack(
+        #Margin
+        padx = 30,
+        pady = 1,
+    )
+
+    labelTexto.pack()
+
+    #Input Nombre & Contraseña
+
+    divInput = t.Frame(baseCrearCuenta)
+
+    divNombre = t.Frame(divInput,
+        #Border
+        borderwidth = 1,
+        relief = "solid",
+    )
+
+    labelNombre = t.Label(divNombre,
+        #Texto
+        text = "Nombre de la Cuenta:  ",
+
+    )
+
+    inputNombre = t.Entry(divNombre)
+
+    divInput.pack()
+    
+    divNombre.pack(
+        #Align
+        side = "left",
+    )
+
+    labelNombre.pack(
+        #Align
+        side = "left",
+    )
+
+    inputNombre.pack(
+        #Align
+        side = "right"
+    )
+
+def iniciarSesion ():
+    print("a")
+
+def borrarCuenta ():
+    print("a")
+
+
+divOpciones = t.Frame(baseMenuInicio,
     #Border
     borderwidth = 3,
     relief = "solid",
-    )
+)
 
 btnRegistrarse = t.Button(divOpciones, #Crea una cuenta a el usuario & inicia sesion con esta
     #Texto
@@ -97,7 +213,7 @@ btnRegistrarse = t.Button(divOpciones, #Crea una cuenta a el usuario & inicia se
     font = ("Arial", 10),
 
     #Function
-    command = menuInicio,
+    command = crearCuenta,
 
     #Padding
     padx = 15,
@@ -106,7 +222,7 @@ btnRegistrarse = t.Button(divOpciones, #Crea una cuenta a el usuario & inicia se
     #H&W
     height = 2,
     width = 30,
-    )
+)
 
 btnIniciar = t.Button(divOpciones, #Inicia la Sesion del usuario en una cuenta ya hecha
     #Texto
@@ -114,7 +230,7 @@ btnIniciar = t.Button(divOpciones, #Inicia la Sesion del usuario en una cuenta y
     font = ("Arial", 10),
 
     #Function
-    command = menuInicio,
+    command = iniciarSesion,
 
     #Padding
     padx = 15,
@@ -123,7 +239,7 @@ btnIniciar = t.Button(divOpciones, #Inicia la Sesion del usuario en una cuenta y
     #H&W
     height = 2,
     width = 10,
-    )
+)
 
 btnBorrar = t.Button(divOpciones, #Borra la cuenta de un usuario
     #Texto
@@ -131,7 +247,7 @@ btnBorrar = t.Button(divOpciones, #Borra la cuenta de un usuario
     font = ("Arial", 10),
 
     #Function
-    command = menuInicio,
+    command = borrarCuenta,
     
     #padding
     padx = 15,
@@ -140,30 +256,39 @@ btnBorrar = t.Button(divOpciones, #Borra la cuenta de un usuario
     #H&W
     height = 2,
     width = 10,
-    )
+)
 
 divOpciones.pack(
     #Margin
-    pady = 20,
-    )
+    pady = 10,
+)
 
-btnRegistrarse.pack(side = "top",
+btnRegistrarse.pack(
+    #Align
+    side = "top",
+
     #Margin
     padx = 20,
-    pady = 30,
-    )
+    pady = 10,
+)
 
-btnIniciar.pack(side = "right",
+btnIniciar.pack(
+    #Align
+    side = "right",
+
     #Margin
     padx = 30,
-    pady = 30,
-    )
+    pady = 10,
+)
 
-btnBorrar.pack(side = "left",
+btnBorrar.pack(
+    #Align
+    side = "left",
+
     #Margin
     padx = 30,
-    pady = 30,
-    )
+    pady = 10,
+)
 
 """#Menu de Usuario
 
@@ -303,3 +428,4 @@ def menuInicio():
         sleep(tiempoIntervalo)
         menuInicio()
 """
+baseMenuInicio.mainloop()
