@@ -1,7 +1,8 @@
 #Made By Bl4ky113 & XicXac
 
-#Librerias Firebase
+"""  Librerias  """
 
+#Librerias Firebase 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
@@ -15,6 +16,8 @@ import tkinter as t
 from numpy import random
 from time import sleep
 
+""" Firebase admin """
+
 # Fetch the service account key JSON file contents
 cred = credentials.Certificate('C:/Users/diana/OneDrive/Documentos/Haiko/proyecto/clave_Json/clave.json')
 # Initialize the app with a service account, granting admin privileges       
@@ -22,20 +25,28 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://bankdatabase-haiko.firebaseio.com/'
 })
 
-"""  Variables  """
+global ref, usuarios
 
 ref = db.reference("usuarios")
-usuarios = ref.get()
 
 """  Functions  """
 
-def checkUserInfo (opcion, nombreU):
-    # Opción 1: Check Nombre
+def checkUserInfo (opcion, nombreUsuario):
+    #Obtener info de dataBase
+    usuarios = ref.get()
+
+    # Opción 1: Check Nombre en dataBase
     if opcion == 1:
-        if nombreU in usuarios:
+        if nombreUsuario in usuarios:
             return True
+
         else:
             return False
+
+    #Opción 2: Check Password de un Usuario en dataBase
+    if opcion == 2:
+        print("Perro")
+
 
 def ventanaError (opcion):
     #Var de contexto del error
@@ -44,7 +55,6 @@ def ventanaError (opcion):
     #Base de Error (ventana emergente)
     baseError = t.Toplevel()
     baseError.title("Error")
-    baseError.geometry('400x100')
 
     #Titulo
     divTitulo = t.Frame(baseError,
@@ -56,7 +66,7 @@ def ventanaError (opcion):
     labelTitulo = t.Label(divTitulo,
         #Texto
         text = "Error",
-        font = ("Aria", 16),
+        font = ("Arial", 16),
 
         #Padding
         padx = 10,
@@ -83,7 +93,7 @@ def ventanaError (opcion):
     divTexto.pack()
     labelTexto.pack()
 
-    #Opcion 1: 
+    #Opcion 1: Nombre usuario ya ocupado en dataBase
     if opcion == 1:
         mensajeError = "El nombre de la Cuenta ya esta ocupado.\nIntente otro nombre."
 
@@ -175,7 +185,6 @@ def menuCrearCuenta ():
     def nombreCheck (info):
         nombreNuevaCuenta = inputNombre.get()
         if checkUserInfo(1, nombreNuevaCuenta) == False:
-            print(nombreNuevaCuenta)
             divBasePassword.pack()
 
         else:
@@ -197,18 +206,192 @@ def menuCrearCuenta ():
 
     #Crear la cuenta
     def crearCuenta (info):
+        #Info de la nueva cuenta
         nombre = inputNombre.get()
         password = inputPassword.get()
-        codigo = codigoUsuario(6)
+        codigo = codigoUsuario(4)
 
-        print("Nombre: ", nombre)
-        print("Password: ", password)
-        print("Código: ", codigo)
+        ref.update({
+            nombre:{
+                'password': password, 
+                'code': codigo,
+                'money':{
+                    'balance': 0,
+                    'debt': 0,
 
-    #Base Crear & Nueva Cuenta
+                },
+
+            },
+
+        })
+
+        #Base Cuenta creada
+        baseCuentaCreada = t.Toplevel()
+        baseCuentaCreada.title("¡Cuenta Creada!")
+
+        #Titulo
+        divTitulo = t.Frame(baseCuentaCreada,
+            #Border
+            borderwidth = 2,
+            relief = "solid",
+        )
+
+        labelTitulo = t.Label(divTitulo,
+            #Texto
+            text = "¡Cuenta Creada!",
+            font = ("Arial", 16, "bold"),
+
+            #Padding
+            padx = 10,
+            pady = 10,
+        )
+
+        divTitulo.pack(
+            #Margin
+            padx = 10,
+            pady = 10,
+        )
+
+        labelTitulo.pack()
+
+        #Texto Cuenta Creada
+        divTexto = t.Label(baseCuentaCreada)
+
+        labelTexto = t.Label(divTexto,
+            #Texto
+            text = "Su cuenta ha sido correctamente creada.\nLa información de su cuenta es:",
+
+            #Padding
+            padx = 5,
+            pady = 5,
+        )
+
+        divTexto.pack(
+            #Align
+            side = "top",
+            anchor = "nw",
+
+            #Margin
+            padx = 30,
+            pady = 10,
+        )
+
+        labelTexto.pack()
+
+        #Info Usuario
+
+        divInfoUsuario = t.Frame(baseCuentaCreada,
+            #Border
+            borderwidth = 1,
+            relief = "solid",
+
+            #Padding
+            padx = 5,
+            pady = 5,
+        )
+
+        labelNombreUsuario = t.Label(divInfoUsuario,
+            #Texto
+            text = "Nombre del usuario:  " + nombre,
+            font = ("Arial", 12),
+
+            #Border
+            borderwidth = 1,
+            relief = "solid",
+
+            #Padding
+            padx = 5,
+            pady = 5,
+        )
+
+        labelPasswordUsuario = t.Label(divInfoUsuario,
+            #Texto
+            text = "Contraseña del usuario:  " + password,
+            font = ("Arial", 12),
+
+            #Border
+            borderwidth = 1,
+            relief = "solid",
+
+            #Padding
+            padx = 5,
+            pady = 5,
+        )
+
+        labelCodigoUsuario = t.Label(divInfoUsuario,
+            #Texto
+            text = "Código del usuario:  " + codigo,
+            font = ("Arial Bold", 14),
+
+            #Border
+            borderwidth = 1,
+            relief = "solid",
+
+            #Padding
+            padx = 5,
+            pady = 5,
+        )
+
+        divInfoUsuario.pack(
+            #Margin
+            padx = 5,
+            pady = 5,
+        )
+
+        labelNombreUsuario.pack(
+            #Margin
+            padx = 5,
+            pady = 5,
+        )
+
+        labelPasswordUsuario.pack(
+            #Margin
+            padx = 5,
+            pady = 5,
+        )
+
+        labelCodigoUsuario.pack(
+            #Margin
+            padx = 5,
+            pady = 5,
+        )
+
+        #Boton aceptar
+
+        def kill () :
+            baseCuentaCreada.destroy()
+            baseCrearCuenta.destroy()
+
+        divAceptar = t.Frame(baseCuentaCreada)
+
+        btnAceptar = t.Button(divAceptar,
+            #Texto
+            text = "Aceptar",
+            font = ("Arial Bold", 10),
+
+            #Function
+            command = kill,
+
+            #Padding
+            padx = 10,
+            pady = 10,
+        )
+
+        divAceptar.pack(
+            #Align
+            side = "bottom",
+
+            #Margin
+            padx = 10,
+            pady = 10,
+        )
+
+        btnAceptar.pack() 
+
+    #Base Crear Nueva Cuenta
     baseCrearCuenta = t.Toplevel()
     baseCrearCuenta.title("Crear Nueva Cuenta")
-    baseCrearCuenta.geometry('1000x500')
+    baseCrearCuenta.geometry('600x250')
 
     #Titulo
     divTitulo = t.Frame(baseCrearCuenta,
@@ -295,8 +478,6 @@ def menuCrearCuenta ():
 
     divBasePassword = t.Frame(baseCrearCuenta)
 
-    #divBasePassword.pack()
-
     #Label Password
 
     divTextoPassword = t.Frame(divBasePassword,
@@ -324,11 +505,7 @@ def menuCrearCuenta ():
         pady = 10,
     )
 
-    labelTextoPassword.pack(
-        #Margin
-        padx = 10,
-        pady = 10,
-    )
+    labelTextoPassword.pack()
 
     #Input de Password
 
@@ -348,11 +525,14 @@ def menuCrearCuenta ():
 
     inputPassword.pack()
 
-def iniciarSesion ():
+def menuIniciarSesion ():
     print("a")
 
-def borrarCuenta ():
-    print("a")
+def menuBorrarCuenta ():
+    #Base Borrar Cuenta
+    baseMenuBorrarCuenta = t.Toplevel()
+    baseMenuBorrarCuenta.title("Borrar Cuenta")
+    baseMenuBorrarCuenta.geometry('600x250')
 
 
 divOpciones = t.Frame(baseMenuInicio,
@@ -384,7 +564,7 @@ btnIniciar = t.Button(divOpciones, #Inicia la Sesion del usuario en una cuenta y
     font = ("Arial", 10),
 
     #Function
-    command = iniciarSesion,
+    command = menuIniciarSesion,
 
     #Padding
     padx = 15,
@@ -401,7 +581,7 @@ btnBorrar = t.Button(divOpciones, #Borra la cuenta de un usuario
     font = ("Arial", 10),
 
     #Function
-    command = borrarCuenta,
+    command = menuBorrarCuenta,
     
     #padding
     padx = 15,
@@ -517,33 +697,10 @@ def menuUsuario(userName):
 
 #Menu de Inicio
 
-def menuInicio():
+def menuInicio()
 
     print("'a' para crear una nueva cuenta \n'b' para ingresar en su cuenta \n'c' para eliminar una cuenta")
     accion = input("Ingrese que accion quiere realizar:   ")
-
-    if accion.lower() == 'a':
-        nombreNewU = input("Ingrese el nombre del usuario:  ")
-        if nombreNewU in usuarios:
-            print("Este nombre de Usuario ya esta definido\nIntente otro nombre de usuario")
-            sleep(tiempoIntervalo)
-            menuInicio()
-        else:    
-            passwordNewU = int(input("Ingrese su contraseña:  "))
-            codigoNewU = random.randint(1000)
-            ref.update({
-                nombreNewU:{
-                    'password': passwordNewU, 
-                    'codigo': codigoNewU,
-                    'dinero':{
-                        'balance': 0,
-                        'deuda': 0,
-                        } ,
-                    },
-                })
-            print("Listo! Su usuario es: ", nombreNewU, "\nSu codigo es: ", codigoNewU) 
-            sleep(tiempoIntervalo)
-            menuUsuario(nombreNewU)   
     
     elif accion.lower() == 'b':
         nombreSignIn = input("Ingrese el nombre de usuario de su cuenta:  ")
