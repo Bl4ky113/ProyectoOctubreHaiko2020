@@ -24,8 +24,71 @@ firebase_admin.initialize_app(cred, {
 
 """  Variables  """
 
-ref = db.reference("bankdatabase-haiko")
+ref = db.reference("usuarios")
 usuarios = ref.get()
+
+"""  Functions  """
+
+def checkUserInfo (opcion, nombreU):
+    # Opción 1: Check Nombre
+    if opcion == 1:
+        if nombreU in usuarios:
+            return True
+        else:
+            return False
+
+def ventanaError (opcion):
+    #Var de contexto del error
+    mensajeError = "Error no especificado"
+
+    #Base de Error (ventana emergente)
+    baseError = t.Toplevel()
+    baseError.title("Error")
+    baseError.geometry('400x100')
+
+    #Titulo
+    divTitulo = t.Frame(baseError,
+        #Border
+        borderwidth = 2,
+        relief = "solid",
+    )
+
+    labelTitulo = t.Label(divTitulo,
+        #Texto
+        text = "Error",
+        font = ("Aria", 16),
+
+        #Padding
+        padx = 10,
+        pady = 10,
+    )
+
+    divTitulo.pack()
+
+    labelTitulo.pack()
+
+    #Texto especificacion del Error
+    divTexto = t.Frame(baseError)
+
+    labelTexto = t.Label(divTexto,
+        #Texto
+        text = mensajeError,
+        font = ("Arial", 12),
+
+        #Padding
+        padx = 10,
+        pady = 10,
+    )
+
+    divTexto.pack()
+    labelTexto.pack()
+
+    #Opcion 1: 
+    if opcion == 1:
+        mensajeError = "El nombre de la Cuenta ya esta ocupado.\nIntente otro nombre."
+
+        labelTexto.config(text = mensajeError)
+
 
 """  Menu de inicio """
 
@@ -102,9 +165,46 @@ divTexto.pack(
 
 labelTexto.pack()
 
-#Opciones
+#Opciones    
 
-def crearCuenta ():
+def menuCrearCuenta ():
+
+    #Functions Crear nueva cuenta en FireBase
+
+    #Check de nombre en data Base
+    def nombreCheck (info):
+        nombreNuevaCuenta = inputNombre.get()
+        if checkUserInfo(1, nombreNuevaCuenta) == False:
+            print(nombreNuevaCuenta)
+            divBasePassword.pack()
+
+        else:
+            ventanaError(1)
+
+    #Hacer el código del usuario
+    def codigoUsuario (numDigitos):
+        baseCodigo = []
+        sumaCodigo = 0
+        codigoFinal = ""
+        for i in range(numDigitos):
+            baseCodigo.append(random.randint(9))
+            sumaCodigo += baseCodigo[i]
+            codigoFinal += str(baseCodigo[i])
+            
+        codigoFinal += str(sumaCodigo)
+
+        return codigoFinal
+
+    #Crear la cuenta
+    def crearCuenta (info):
+        nombre = inputNombre.get()
+        password = inputPassword.get()
+        codigo = codigoUsuario(6)
+
+        print("Nombre: ", nombre)
+        print("Password: ", password)
+        print("Código: ", codigo)
+
     #Base Crear & Nueva Cuenta
     baseCrearCuenta = t.Toplevel()
     baseCrearCuenta.title("Crear Nueva Cuenta")
@@ -115,7 +215,7 @@ def crearCuenta ():
         #border
         borderwidth = 2,
         relief = "solid",
-)
+    )
 
     labelTitulo = t.Label(divTitulo,
         #Texto
@@ -125,25 +225,33 @@ def crearCuenta ():
         #Padding
         padx = 5,
         pady = 5,
-)
+    )
     
     divTitulo.pack(
         #Margin
         padx = 10,
         pady = 10,
     )
+
     labelTitulo.pack()
 
-    #Texto Instrucciones
-    divTexto = t.Frame(baseCrearCuenta,
+    #Div Base Nombre
+
+    divBaseNombre = t.Frame(baseCrearCuenta)
+
+    divBaseNombre.pack()
+
+    #Label de Input Nombre
+
+    divTextoNombre = t.Frame(divBaseNombre,
         #Border
-        borderwidth = 3,
+        borderwidth = 1,
         relief = "solid",
     )
 
-    labelTexto = t.Label(divTexto,
+    labelTextoNombre = t.Label(divTextoNombre,
         #Texto
-        text = "Ingrese el nombre de su nueva Cuenta: ",
+        text = "Ingrese el nombre de su nueva Cuenta:",
         font = ("Arial", 14),
 
         #Padding
@@ -151,48 +259,94 @@ def crearCuenta ():
         pady = 5,
     )
 
-    divTexto.pack(
+    divTextoNombre.pack(
         #Margin
         padx = 30,
-        pady = 1,
+        pady = 10,
+
+        #Align
+        side = "left"
     )
 
-    labelTexto.pack()
+    labelTextoNombre.pack()
 
-    #Input Nombre & Contraseña
+    #Input Nombre
 
-    divInput = t.Frame(baseCrearCuenta)
-
-    divNombre = t.Frame(divInput,
+    divNombre = t.Frame(divBaseNombre,
         #Border
         borderwidth = 1,
         relief = "solid",
     )
 
-    labelNombre = t.Label(divNombre,
-        #Texto
-        text = "Nombre de la Cuenta:  ",
-
-    )
-
     inputNombre = t.Entry(divNombre)
-
-    divInput.pack()
+    inputNombre.bind('<Return>', nombreCheck)
     
     divNombre.pack(
         #Align
         side = "left",
     )
 
-    labelNombre.pack(
-        #Align
-        side = "left",
-    )
-
     inputNombre.pack(
         #Align
-        side = "right"
+        side = "right",
     )
+
+    #Div Base Password (hidden)
+
+    divBasePassword = t.Frame(baseCrearCuenta)
+
+    #divBasePassword.pack()
+
+    #Label Password
+
+    divTextoPassword = t.Frame(divBasePassword,
+        #Border
+        borderwidth = 1,
+        relief = "solid",
+    )
+
+    labelTextoPassword = t.Label(divTextoPassword,
+        #Texto
+        text = "Ingrese la contraseña de su nueva Cuenta:",
+        font = ("Arial", 14),
+
+        #Padding
+        padx = 5,
+        pady = 5,
+    )
+
+    divTextoPassword.pack(
+        #Align
+        side = "left",
+
+        #Margin
+        padx = 30,
+        pady = 10,
+    )
+
+    labelTextoPassword.pack(
+        #Margin
+        padx = 10,
+        pady = 10,
+    )
+
+    #Input de Password
+
+    divPassword = t.Frame(divBasePassword,
+        #Margin
+        borderwidth = 1,
+        relief = "solid",
+    )
+
+    inputPassword = t.Entry(divPassword)
+    inputPassword.bind('<Return>', crearCuenta)
+
+    divPassword.pack(
+        #Align
+        side = "right",
+    )
+
+    inputPassword.pack()
 
 def iniciarSesion ():
     print("a")
@@ -213,7 +367,7 @@ btnRegistrarse = t.Button(divOpciones, #Crea una cuenta a el usuario & inicia se
     font = ("Arial", 10),
 
     #Function
-    command = crearCuenta,
+    command = menuCrearCuenta,
 
     #Padding
     padx = 15,
