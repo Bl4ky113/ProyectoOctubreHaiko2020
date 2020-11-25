@@ -8,10 +8,10 @@ import tkinter as tk
 datos =[]
 
 # Fetch the service account key JSON file contents
-cred = credentials.Certificate('C:/Users/XicYac/firebase_python/clave/clave.json')
-# Initialize the app with a service account, granting admin privileges
+cred = credentials.Certificate('C:/Users/diana/OneDrive/Documentos/Haiko/proyecto/clave_Json/clave.json')
+# Initialize the app with a service account, granting admin privileges       
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://haiko1-bd.firebaseio.com//'
+    'databaseURL': 'https://bankdatabase-haiko.firebaseio.com/'
 })
 
 ref = db.reference("Usuarios")
