@@ -484,8 +484,36 @@ def menuUsuario(nombre, codigo):
     
     #Ver el balance o el dinero de la Cuenta
     def menuBalanceCuenta():
-        print("a")
+        #Información de usuario
+        balance = userMoneyUpdate("balance")
+        deuda = userMoneyUpdate("deuda")
 
+        #Base checkBalance
+        baseCheckBalance = t.Toplevel()
+        baseCheckBalance.title("Revisar el Balance de " + nombre)
+
+        #Titulo checkBalance
+        tituloCheckBalance = plantilla_titulo(
+            #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+            baseCheckBalance, 3, "solid", 18, "center", "Revisar Dinero de tu Cuenta",
+        )
+
+        #Texto checkBalance
+        textoCheckBalance = plantilla_texto()
+        textoCheckBalance.textoConBorde(
+            #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin; Tamaño del borde; Tipo de borde
+            baseCheckBalance, 
+            "El Balance de tu cuenta es de:  $" + str(balance) + "\nLa Deuda de tu cuenta es de:  $" + str(deuda),
+            14, 10,"top", "center", 5, 1, "solid",
+        )
+
+        #Botón Aceptar
+        btnAceptar = plantilla_botones()
+        btnAceptar.botonAceptar(
+            #Base botón; Función 
+            baseCheckBalance, baseCheckBalance.destroy
+        )
+        
     btnBalanceCuenta = plantilla_botones()
     btnBalanceCuenta.botonOpciones(
         #Base botón; Texto botón; Tamaño letra; Función; H&W; Align; Margin (X, Y)
@@ -861,18 +889,6 @@ def menuUsuario(userName):
     global money_ref 
     money_ref = db.reference("Usuarios/" + userName + "/dinero")
     money = money_ref.get()
-
-    #Agrega balance, si tiene Deuda se resta a esta y se agrega lo que deje a balance
-
-    if opcionUsuario.lower() == 'a':
-        sumaMoney = int(input("Digite el monto a ingresar:   "))
-        totalMoney = usuarios[userName]['dinero']['balance'] + sumaMoney
-        money_ref.update({
-            'balance':totalMoney,
-
-        })
-        print("Listo!! su balance ha sido actualizado")
-        menuUsuario(userName)
 
     #Enviar dinero a otra cuenta con cd y nm, Si deposito < balance, se acumula deuda
 
