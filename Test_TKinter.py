@@ -1,19 +1,33 @@
-from tkinter import *
+import tkinter as t
+
+class perroFeo:
+    def __init__(self, base, mensaje):
+        self.button = t.Button(
+            base,
+            text = mensaje,
+            command = self.gato,
+        )
+        self.button.pack(
+            padx = 10,
+            pady = 10,
+        )
+    
+    def gato (self):
+        print("Gato")
 
 #Hacer la ventana(?
 
-root = Tk()
+root = t.Tk()
 root.geometry('200x200')
 
 #Div ventana
-div = Frame(root)
+div = t.Frame(root)
 div.pack()
 
 #button in the div
 
-label = Label(div, text='Perro')
-button = Button(root, text = 'a', bd = '5', command = root.destroy)
-button.pack()
+label = t.Label(div, text='Perro')
+button = perroFeo(root, "HOLA")
 label.pack()
 
 #event loop?
