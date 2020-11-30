@@ -29,7 +29,8 @@ ref = db.reference("usuarios")
 """  Class  """
 
 #Plantila de titulos
-class plantilla_titulo: #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+class plantilla_titulo:
+    #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
     def __init__ (self, base, borde, tipoBorde, size, position, titular):
         #Titulo
         titulo = t.Label(base,
@@ -49,9 +50,15 @@ class plantilla_titulo: #Base de titulo; Tamaño de borde; Tipo de borde; Tamañ
 
 #Plantilla de userInput
 class plantilla_userInput:
-    def __init__ (self, base, textoLabel):
+    #Base del input; Mensaje del label; Status del div(show || hide)
+    def __init__ (self, base, textoLabel, visual):
+        #Div & base
+        self.baseInput = t.Frame(base)
+        if visual == "show":
+            self.baseInput.pack()
+
         #Label
-        label = t.Label(base, 
+        label = t.Label(self.baseInput, 
             #Border
             borderwidth = 1, relief = "solid",
             #Texto
@@ -66,7 +73,7 @@ class plantilla_userInput:
             padx = 30, pady = 10,
         )
 
-        self.input = t.Entry(base,
+        self.input = t.Entry(self.baseInput,
             #Border
             borderwidth = 1, relief = "solid",
         )
@@ -397,10 +404,8 @@ def menuUsuario(nombre, codigo):
                 
         #Input cantidad de dinero a ingresar
         inputCantidadDinero = plantilla_userInput(
-            #Base del input
-            baseDepositarDinero,
-            #Mensaje del label
-            "Cantidad de dinero:",
+            #Base del input; Mensaje del label; Status del div(show || hide)
+            baseDepositarDinero, "Cantidad de dinero:", "show",
         )
         inputCantidadDinero.input.bind('<Return>', ingresarDinero)
 
@@ -490,7 +495,7 @@ def menuCrearCuenta ():
         nombreNuevaCuenta = inputNombre.input.get()
         if checkUserInfo(1, nombreNuevaCuenta, "password", "codigo") == False:
             #Activa el input de Password
-            basePassword.pack()
+            inputPassword.baseInput.pack()
 
         else:
             ventanaError("nombre_existente")
@@ -592,25 +597,16 @@ def menuCrearCuenta ():
     #Input del Nuevo Usuario
 
     #Input Nombre
-    baseNombre = t.Frame(baseCrearCuenta)
-    baseNombre.pack()
-
     inputNombre = plantilla_userInput(
-        #Base del input
-        baseNombre,
-        #Mensaje del label
-        "Ingrese el nombre de su nueva Cuenta:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseCrearCuenta, "Ingrese el nombre de su nueva Cuenta:", "show"
     )
     inputNombre.input.bind('<Return>', nombreCheck)
 
     #Input Password (hidden)
-    basePassword = t.Frame(baseCrearCuenta)
-
     inputPassword = plantilla_userInput(
-        #Base del input
-        basePassword,
-        #Mensaje del label
-        "Ingrese la contraseña de su nueva Cuenta:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseCrearCuenta, "Ingrese la contraseña de su nueva Cuenta:", "hide", 
     )
     inputPassword.input.bind('<Return>', crearCuenta)
 
@@ -628,8 +624,8 @@ def menuIniciarSesion ():
         nombre = inputNombre.input.get()
         if checkUserInfo(1, nombre, "password", "code") == True:
             #Activa los inputs de Password & Código
-            baseCodigo.pack()
-            basePassword.pack()
+            inputCodigo.baseInput.pack()
+            inputPassword.baseInput.pack()
         
         else:
             ventanaError("nombre_noExistente")
@@ -690,35 +686,23 @@ def menuIniciarSesion ():
     #Input Info Usuario a Iniciar Sesion
 
     #Input Nombre
-    baseNombre = t.Frame(baseIniciarSesion)
-    baseNombre.pack()
-
     inputNombre = plantilla_userInput(
-        #Base del input
-        baseNombre,
-        #Mensaje del Label
-        "Ingrese el nombre de su cuenta:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseIniciarSesion, "Ingrese el nombre de su cuenta:", "show",
     )
     inputNombre.input.bind('<Return>', nombreCheck)
 
     #Input Código (Hidden)
-    baseCodigo = t.Frame(baseIniciarSesion)
-    
     inputCodigo = plantilla_userInput(
-        #Base del input
-        baseCodigo,
-        #Mensaje del Label
-        "Ingrese el código su cuenta:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseIniciarSesion, "Ingrese el código su cuenta:", "hide",
     )
+    inputCodigo.input.bind('Return', iniciarSesion)
 
     #Input Password (Hidden)
-    basePassword = t.Frame(baseIniciarSesion)
-
     inputPassword = plantilla_userInput(
-        #Base del input
-        basePassword,
-        #Mensaje del Label
-        "Ingrese la contraseña de su cuenta:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseIniciarSesion, "Ingrese la contraseña de su cuenta:", "hide",
     )
     inputPassword.input.bind('<Return>', iniciarSesion)
 
@@ -733,8 +717,8 @@ def menuBorrarCuenta ():
     def nombreCheck (info):
         nombre = inputNombre.input.get()
         if checkUserInfo(1, nombre, "password", "codigo") == True:
-            baseCodigo.pack()
-            basePassword.pack()
+            inputCodigo.baseInput.pack()
+            inputPassword.baseInput.pack()
 
         else:
             ventanaError("nombre_noExistente")
@@ -796,36 +780,23 @@ def menuBorrarCuenta ():
     #Inputs Info del Usuario a borrar
 
     #Input Nombre
-    baseNombre = t.Frame(baseBorrarCuenta)
-    baseNombre.pack()
-
     inputNombre = plantilla_userInput(
-        #Base del input
-        baseNombre,
-        #Mensaje del Label
-        "Ingrese el nombre de la cuenta a borrar:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseBorrarCuenta, "Ingrese el nombre de la cuenta a borrar:", "show",
     )
     inputNombre.input.bind('<Return>', nombreCheck)
 
     #Input Código (hidden)
-    baseCodigo = t.Frame(baseBorrarCuenta)
-
     inputCodigo = plantilla_userInput(
-        #Base del input
-        baseCodigo,
-        #Mensaje del Label
-        "Ingrese el código de la cuenta a borrar:"
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseBorrarCuenta, "Ingrese el código de la cuenta a borrar:", "hide",
     )
+    inputCodigo.input.bind('<Return>', borrarCuenta)
 
     #Input Password (hidden)
-
-    basePassword = t.Frame(baseBorrarCuenta)
-
     inputPassword = plantilla_userInput(
-        #Base del input
-        basePassword,
-        #Mensaje del label
-        "Ingrese la contraseña de la cuenta a borrar:",
+        #Base del input; Mensaje del label; Status del div(show || hide)
+        baseBorrarCuenta, "Ingrese la contraseña de la cuenta a borrar:", "hide",
     )
     inputPassword.input.bind('<Return>', borrarCuenta)
 
