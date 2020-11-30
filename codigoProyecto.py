@@ -513,7 +513,7 @@ def menuUsuario(nombre, codigo):
             #Base botón; Función 
             baseCheckBalance, baseCheckBalance.destroy
         )
-        
+
     btnBalanceCuenta = plantilla_botones()
     btnBalanceCuenta.botonOpciones(
         #Base botón; Texto botón; Tamaño letra; Función; H&W; Align; Margin (X, Y)
@@ -563,8 +563,6 @@ baseBotonesOpciones.pack(
 
 
 def menuCrearCuenta ():
-    #Functions Crear nueva cuenta en FireBase
-
     #Check de nombre en data Base
     def nombreCheck (info):
         nombreNuevaCuenta = inputNombre.input.get()
@@ -595,6 +593,9 @@ def menuCrearCuenta ():
             },
 
         })
+
+        #Cerrar ventana Crear Cuenta, para evitar exploits y errores
+        baseCrearCuenta.destroy()
 
         #Base Cuenta creada
         baseCuentaCreada = t.Toplevel()
@@ -647,14 +648,10 @@ def menuCrearCuenta ():
         )
 
         #Botón aceptar
-        def kill ():
-            baseCuentaCreada.destroy()
-            baseCrearCuenta.destroy()
-        
         btnAceptar = plantilla_botones()
         btnAceptar.botonAceptar(
             #Base botón; Función
-            baseCuentaCreada, kill,
+            baseCuentaCreada, baseCuentaCreada.destroy,
         )
             
     #Base Crear Nueva Cuenta
@@ -692,8 +689,6 @@ btnRegistrarse.botonOpciones(
 )
 
 def menuIniciarSesion ():
-    #Menu Functions
-
     #Check sí nombre esta en db
     def nombreCheck (info):
         nombre = inputNombre.input.get()
@@ -707,9 +702,14 @@ def menuIniciarSesion ():
 
     #Iniciar Sesion 
     def iniciarSesion (info):
+        #Info de Usuario
         nombre = inputNombre.input.get()
         codigo = inputCodigo.input.get()
         password = inputPassword.input.get()
+
+        #Cerrar la ventana Iniciar Sesion, para evitar errores
+        baseIniciarSesion.destroy()
+
         if checkUserInfo(2, nombre, password, codigo) == True:
             #Base de Iniciar Menu
             baseIniciarMenu = t.Toplevel()
@@ -731,17 +731,16 @@ def menuIniciarSesion ():
             )
 
             #Botón Aceptar
-            def kill():
+            def iniciarMenuUsuario():
                 #Inicia el menu del usuario
                 menuUsuario(nombre, codigo)
-
+                #Cerrar ventana de IniciarSesion
                 baseIniciarMenu.destroy()
-                baseIniciarSesion.destroy()
 
             btnAceptar = plantilla_botones()
             btnAceptar.botonAceptar(
                 #Base botón; Función
-                baseIniciarMenu, kill,
+                baseIniciarMenu, iniciarMenuUsuario,
             )
 
         else:
@@ -800,9 +799,14 @@ def menuBorrarCuenta ():
 
     #Borrar cuenta de dataBase
     def borrarCuenta (info):
+        #Info cuenta a borrar
         nombre = inputNombre.input.get()
         password = inputPassword.input.get()
         codigo = inputCodigo.input.get()
+
+        #Cerrar ventana de borrar cuenta, para evitar exploits y errores
+        baseBorrarCuenta.destroy()
+
         if checkUserInfo(2, nombre, password, codigo) == True:
             #Borrar usuario de dataBase
             ref.child(nombre).delete()
@@ -827,14 +831,11 @@ def menuBorrarCuenta ():
             )
 
             #Boton Aceptar
-            def kill ():
-                baseByeBye.destroy()
-                baseBorrarCuenta.destroy()
             
             btnAceptar = plantilla_botones()
             btnAceptar.botonAceptar(
                 #Base botón; Función
-                baseByeBye, kill,
+                baseByeBye, baseByeBye.destroy,
             )
 
         else:
@@ -933,13 +934,6 @@ def menuUsuario(userName):
                 elif respuesta.lower() == "no":
                     sleep(2)
                     menuUsuario(userName)    
-
-    #Ver balance total = balance - Deuda
-    elif opcionUsuario.lower() == 'c':
-        print("El balance en su cuenta es de:   ", money['balance'] - money['deuda'])
-        sleep(2)
-        menuUsuario(userName)
-
 
 """
 baseMenuInicio.mainloop()
