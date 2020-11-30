@@ -319,13 +319,13 @@ def menuUsuario(nombre, codigo):
         textoDepositarDinero = plantilla_texto()
         textoDepositarDinero.textoSinBorde(
             #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
-            baseDepositarDinero, "Ingresa la cantidad de dinero que quieras sumarle a el balance de tu cuenta", 14, 5, "top", "center", 5,
+            baseDepositarDinero, "Ingresa la cantidad de dinero que quieras ingresarle a tu cuenta.\nSí tienes deudas se pagaran estas primero y depues se depositara el dinero.", 14, 5, "top", "center", 5,
         )
 
         #Function Ingresa el dinero
         def ingresarDinero(info):
             #Dinero ingresado, Dinero de balance y Dinero de deusda
-            dinero = int(inputCantidadDinero.input.get())
+            dineroIngresar = int(inputCantidadDinero.input.get())
             balance = userMoneyUpdate("balance")
             deuda = userMoneyUpdate("deuda")
 
@@ -335,7 +335,7 @@ def menuUsuario(nombre, codigo):
             #Añade balance a la cuenta sí deuda = 0
             if checkUserInfo(3, nombre, "password", "code") == True:
                 #Info usuario
-                balance += dinero
+                balance += dineroIngresar
                 deuda = 0
 
                 #Subida de datos a dataBase
@@ -363,7 +363,7 @@ def menuUsuario(nombre, codigo):
                 textoDineroDepositado.textoSinBorde(
                     #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
                     baseDineroDepositado,
-                    "Se ha Depositado $" + str(dinero) + " a tu Cuenta " + str(nombre) + "\nDando un balance total de: $" + str(balance), 
+                    "Se ha Depositado $" + str(dineroIngresar) + " a tu Cuenta " + str(nombre) + "\nDando un balance total de: $" + str(balance), 
                     16, 5, "top", "center", 5,
                 )
 
@@ -376,7 +376,7 @@ def menuUsuario(nombre, codigo):
             #Sí tiene dueda,paga la deuda y despues deposita el dinero (sí queda alguno)
             else:
                 #Info usuario
-                deuda -= dinero
+                deuda -= dineroIngresar
                 mensajeTexto = "Pago indefinido"
 
                 #BaseDeudaPagada
@@ -464,7 +464,106 @@ def menuUsuario(nombre, codigo):
 
     #Retirar dinero de tu cuenta, para obtener "efectivo" (- Balance || + Deuda)
     def menuRetirarDinero():
-        print("A")
+        #Base Retirar Dinero
+        baseRetirarDinero = t.Toplevel()
+        baseRetirarDinero.title("Retirar Dinero en Efectivo")
+
+        #Titulo Retirar Dinero
+        tituloRetirarDinero = plantilla_titulo(
+            #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+            baseRetirarDinero, 2, "solid", 18, "center", "Retirar Dinero en Efectivo",
+        )
+
+        #Texto Retirar Dinero
+        textoRetirarDinero = plantilla_texto()
+        textoRetirarDinero.textoSinBorde(
+            #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+            baseRetirarDinero, "Ingresa la cantidad de Dinero que quieras Retirar en efectivo.\nAsegurate que sí tengas la cantidad disponible antes de retirarlo.",
+            14, 10, "top", "center", 5,
+        )
+
+        #Input Retirar Dinero
+        def retirarDinero (info):
+            #Info Money Usuario
+            balance = userMoneyUpdate("balance")
+            deuda = userMoneyUpdate("deuda")
+            dineroRetirar = int(inputRetirarDinero.input.get())
+
+            #Cerrar ventana RetirarDinero, para evitar exploits y errores
+            baseRetirarDinero.destroy()
+
+            #Sí el dinero a retirar es menor a el balance
+            if dineroRetirar <= balance:
+                #Actualizar info en dataBase
+                balance -= dineroRetirar
+
+                userRef.update({
+                    'money':{
+                        'balance': balance,
+                        'debt': deuda,
+
+                    }
+
+                })
+
+                #Base dineroRetirado
+                baseDineroRetirado = t.Toplevel()
+                baseDineroRetirado.title("Dinero Retirado")
+
+                #Titulo dineroRetirado
+                tituloDineroRetirado = plantilla_titulo(
+                    #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+                    baseDineroRetirado, 2, "solid", 18, "center", "¡Dinero Retirado de Tu Cuenta!",
+                )
+
+                #Texto dineroRetirado
+                textoDineroRetirado = plantilla_texto()
+                textoDineroRetirado.textoSinBorde(
+                    #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+                    baseDineroRetirado, "Su dinero ha sido Retirado.\nSe retirarón:  $" + str(dineroRetirar) + "\nEl balance de su Cuenta es de:  $" + str(balance),
+                    14, 10, "top", "center", 5,
+                )
+
+                #Botón Aceptar
+                btnAceptar = plantilla_botones()
+                btnAceptar.botonAceptar(
+                    #Base botón; Función 
+                    baseDineroRetirado, baseDineroRetirado.destroy
+                )
+
+            #Sí el usuario tiene menor balance que el dinero que debe retirar
+            else:
+                #Base dineroNoRetirado
+                baseDineroNoRetirado = t.Toplevel()
+                baseDineroNoRetirado.title("Dinero No Retirado")
+
+                #Titulo dineroNoRetirado
+                tituloDineroNoRetirado = plantilla_titulo(
+                    #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+                    baseDineroNoRetirado, 2, "solid", 18, "center", "Dinero No retirado",
+                )
+
+                #Texto dineroNoRetirado
+                textoDineroNoRetirado = plantilla_texto()
+                textoDineroNoRetirado.textoSinBorde(
+                    #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+                    baseDineroNoRetirado, "No tienes el dinero suficiente para poder hacer este retiro.\nPero puedes pedir un prestamo a nuestro banco y obtener mucho más que esta acción",
+                    14, 10, "top", "center", 5,
+                )
+
+                #Botón Aceptar
+                btnAceptar = plantilla_botones()
+                btnAceptar.botonAceptar(
+                    #Base botón; Función 
+                    baseDineroNoRetirado, baseDineroNoRetirado.destroy,
+                )
+
+        inputRetirarDinero = plantilla_userInput(
+            #Base del input; Mensaje del label; Status del div(show || hide)
+            baseRetirarDinero, "Dinero que quieres Retirar a Efectivo", "show",
+        )
+        inputRetirarDinero.input.bind('<Return>', retirarDinero)
+
 
     btnRetirarDinero = plantilla_botones()
     btnRetirarDinero.botonOpciones(
