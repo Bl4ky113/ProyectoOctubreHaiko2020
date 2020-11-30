@@ -240,9 +240,17 @@ def ventanaError (opcion):
 """ Menu De Usuario """
 
 def menuUsuario(nombre, codigo):
-    #Info del Usuario
+    #Obtener & actualizar info del dinero del usuario
     userRef = db.reference("usuarios/" + nombre)
-    userData = userRef.get()
+    def userMoneyUpdate (opcion):
+        userData = userRef.get()
+        #Obtener el balance del usuario
+        if opcion == "balance":
+            return userData['money']['balance']
+
+        #Obtener la deuda del usuario
+        if opcion == "deuda":
+            return userData['money']['debt']
 
     #Base del Menu Usuario
     baseMenuUsuario = t.Toplevel()
@@ -318,13 +326,19 @@ def menuUsuario(nombre, codigo):
         def ingresarDinero(info):
             #Dinero ingresado, Dinero de balance y Dinero de deusda
             dinero = int(inputCantidadDinero.input.get())
-            balance = userData['money']['balance']
-            deuda = userData['money']['debt']
+            balance = userMoneyUpdate("balance")
+            deuda = userMoneyUpdate("deuda")
+
+            #Cierra ventana de Depositar Dinero, para evitar exploits
+            baseDepositarDinero.destroy()
 
             #Añade balance a la cuenta sí deuda = 0
             if checkUserInfo(3, nombre, "password", "code") == True:
-                #Suma dinero a cuenta en dataBase
+                #Info usuario
                 balance += dinero
+                deuda = 0
+
+                #Subida de datos a dataBase
                 userRef.update({
                     'money':{
                         'balance': balance,
@@ -353,24 +367,45 @@ def menuUsuario(nombre, codigo):
                     16, 5, "top", "center", 5,
                 )
 
-                #Botón Aceptar
-                def kill():
-                    baseDineroDepositado.destroy()
-                    baseDepositarDinero.destroy()
-
                 btnAceptar = plantilla_botones()
                 btnAceptar.botonAceptar(
                     #Base botón; Función
-                    baseDineroDepositado, kill
+                    baseDineroDepositado, baseDineroDepositado.destroy,
                 )
 
             #Sí tiene dueda,paga la deuda y despues deposita el dinero (sí queda alguno)
             else:
+                #Info usuario
                 deuda -= dinero
+                mensajeTexto = "Pago indefinido"
+
+                #BaseDeudaPagada
+                baseDeudaPagada = t.Toplevel()
+                baseDeudaPagada.title("Deuda Pagada")
+
+                #Titulo Deuda Pagada
+                tituloDeudaPagada = plantilla_titulo(
+                    #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+                    baseDeudaPagada, 2, "solid", 18, "center", "¡Has Pagado Tu Deuda!", 
+                )
+                #Texto Deuda Pagada
+                textoDeudaPagada = plantilla_texto()
+                textoDeudaPagada.textoSinBorde(
+                    #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+                    baseDeudaPagada, mensajeTexto, 14, 10, "top", "center", 10,
+                )
                 
+                #Botón aceptar
+                btnAceptar = plantilla_botones()
+                btnAceptar.botonAceptar(
+                    #Base botón; Función 
+                    baseDeudaPagada, baseDeudaPagada.destroy,
+                )
+
                 #Paga la deuda y queda con dinero de sobra
                 if deuda < 0:
-                    balance = deuda * -1
+                    #Subida de datos a dataBase
+                    balance += deuda * -1
                     userRef.update({
                         'money':{
                             'balance': balance,
@@ -379,6 +414,10 @@ def menuUsuario(nombre, codigo):
                         }
 
                     })
+
+                    #Definir el mensaje del texto
+                    mensajeTexto = "Has pagado toda tu deuda y te ha sobrado dinero.\nSe ha agregado $" + str(deuda * -1) + " a tu cuenta.\n Dando un total de $" + str(balance)
+                    textoDeudaPagada.label.configure(text = mensajeTexto)
 
                 #No paga la deuda y queda sin dinero de sobra
                 elif deuda > 0:
@@ -391,6 +430,10 @@ def menuUsuario(nombre, codigo):
 
                     })
 
+                    #Definir el mensaje del texto
+                    mensajeTexto = "Has pagado una parte de tu deuda.\nFaltan $" + str(deuda) + " para poder completar el pago la deuda."
+                    textoDeudaPagada.label.configure(text = mensajeTexto)
+                    
                 #Paga la deuda y queda sin dinero de sobra
                 else:
                     userRef.update({
@@ -401,6 +444,10 @@ def menuUsuario(nombre, codigo):
                         }
 
                     })
+
+                    #Definir el mensaje del texto
+                    mensajeTexto = "Has pagado toda tu deuda.\nAhora el dinero que igreses va a ir directo a tu cuenta."
+                    textoDeudaPagada.label.configure(text = mensajeTexto)
                 
         #Input cantidad de dinero a ingresar
         inputCantidadDinero = plantilla_userInput(
