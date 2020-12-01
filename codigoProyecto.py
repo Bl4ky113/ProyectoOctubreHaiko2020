@@ -295,7 +295,78 @@ def menuUsuario(nombre, codigo):
 
     #Pedir un Prestamo a el banco Haiko (+ Balance; + Deuda)
     def menuPedirPrestamo():
-        print("A")
+        #BasePrestamo
+        basePrestamo = t.Toplevel()
+        basePrestamo.title("Pedir un Prestamo a Banco Haiko")
+
+        #Titulo Prestamo
+        tituloPrestamo = plantilla_titulo(
+            #Base del titulo; Tamaño de Borde; Tipo de Borde; Tamaño letra; Posición; Titular contenido
+            basePrestamo, 2, "solid", 18, "center", "Pedir un Prestamo",
+        )
+
+        #Texto Prestamo
+        textoPrestamo = plantilla_texto()
+        textoPrestamo.textoConBorde(
+            #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin; Tamaño del borde; Tipo de borde
+            basePrestamo, "Ingresa la cantidad de Dinero que quieres que Nuestro Banco te Preste.\nNuestro Banco maneja un 75% de Interes por cada prestamo.",
+            14, 10, "top", "center", 5, 1, "solid",
+        )
+
+        #Input Dinero Prestado
+
+        def prestarDinero (info):
+            #Info Dinero
+            dineroPrestado = int(inputDineroPrestado.input.get())
+            balance = userMoneyUpdate("balance")
+            deuda = userMoneyUpdate("deuda")
+
+            #Actualizar info en dataBase
+
+            balance += dineroPrestado
+            deuda += dineroPrestado * 1.75
+
+            userRef.update({
+                'money':{
+                    'balance': balance,
+                    'debt': deuda,
+                }
+
+            })
+
+            #Cerrar ventana de Prestamo para evitar embalar más a los usuarios
+            basePrestamo.destroy()
+
+            #Base Dinero Prestado
+            baseDineroPrestado = t.Toplevel()
+            baseDineroPrestado.title("Dinero Prestado")
+
+            #Titulo Dinero Prestado
+            tituloDineroPrestado = plantilla_titulo(
+                #Base del titulo; Tamaño de Borde; Tipo de Borde; Tamaño letra; Posición; Titular contenido
+                baseDineroPrestado, 3, "solid", 20, "center", "¡Dinero Prestado!"
+            )
+
+            #Texto Dinero Prestado
+            textoDineroPrestado = plantilla_texto()
+            textoDineroPrestado.textoConBorde(
+                #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin; Tamaño del borde; Tipo de borde
+                baseDineroPrestado, "¡Listo!\nYa te hemos prestado Dinero.\nAhora ve y Disfruta el Dinero que Ahora Tienes.",
+                14, 10, "top", "center", 10, 1, "solid",
+            )
+
+            #Botón Aceptar
+            btnAceptar = plantilla_botones()
+            btnAceptar.botonAceptar(
+                #Base botón; Función
+                baseDineroPrestado, baseDineroPrestado.destroy
+            )
+
+        inputDineroPrestado = plantilla_userInput(
+            #Base del input; Mensaje del label; Status del div(show || hide)
+            basePrestamo, "Dinero que Necesitas que Te Prestemos:", "show",
+        )
+        inputDineroPrestado.input.bind('<Return>', prestarDinero)
 
     btnPedirPrestamo = plantilla_botones()
     btnPedirPrestamo.botonOpciones(
