@@ -166,15 +166,24 @@ def checkUserInfo (opcion, nombreUsuario, passwordUsuario, codigoUsuario):
         else:
             return False
 
-    #Opción 2: Check Password y Código de un Usuario en dataBase
+    #Opción 2: Check Password de un Usuario en dataBase
     elif opcion == 2:
-        if passwordUsuario == usuarios[nombreUsuario]['password'] and codigoUsuario == usuarios[nombreUsuario]['code']:
+        if passwordUsuario == usuarios[nombreUsuario]['password']:
             return True
 
         else:
             return False
-    #Opción 3: Check sí deuda es menor a 0
+
+    #Opción 3: Check Código de un usuario en dataBase
     elif opcion == 3:
+        if codigoUsuario == usuarios[nombreUsuario]['code']:
+            return True
+
+        else:
+            return False
+
+    #Opción 4: Check sí deuda es igual a 0
+    elif opcion == 4:
         if usuarios[nombreUsuario]['money']['debt'] == 0:
             return True
         
@@ -236,6 +245,9 @@ def ventanaError (opcion):
         mensajeError = "La contraseña o el código de la cuenta es incorrecto.\nIntente otra vez"
         textoError.label.config(text = mensajeError)
 
+    elif opcion == "nombrecodigo_mal":
+        mensajeError = "El nombre o el código de la cuenta es incorrecto.\nIntente otra vez"
+        textoError.label.config(text = mensajeError)
 
 """ Menu De Usuario """
 
@@ -404,7 +416,7 @@ def menuUsuario(nombre, codigo):
             baseDepositarDinero.destroy()
 
             #Añade balance a la cuenta sí deuda = 0
-            if checkUserInfo(3, nombre, "password", "code") == True:
+            if checkUserInfo(4, nombre, "password", "code") == True:
                 #Info usuario
                 balance += dineroIngresar
                 deuda = 0
@@ -642,9 +654,124 @@ def menuUsuario(nombre, codigo):
         baseMenuUsuario, "Retirar Dinero de tu Cuenta", 12, menuRetirarDinero, 1, 35, "top", 10, 5,
     )
 
-    #Depositar & Transferir dinero a otra cuenta; NECESITA ID DE OTRA CUENTA (- Balance || + Deuda)
+    #Depositar & Transferir dinero a otra cuenta; NECESITA ID DE OTRA CUENTA (- Balance)
     def menuTransferirDinero():
-        print("a")
+        #Revisar sí el usuario a Transferir Dinero existe
+        def userCheck (info):
+            #Info de la cuenta a la cual se va a transferir dinero
+            usuarioNombre = inputNombre.input.get()
+            usuarioCodigo = inputCodigo.input.get()
+
+            #Sí la cuenta existe, muestra el input del dinero
+            if checkUserInfo(1, usuarioNombre, "password", "code") and checkUserInfo(3, usuarioNombre, "password", usuarioCodigo):       
+                #Texto Cantidad de Dinero
+                textoTransferir.textoConBorde(
+                    #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin; Tamaño del borde; Tipo de borde
+                    baseTransferir, "¡Listo!\nAhora Ingresa la Cantidad de Dinero que le vas a Transferir a " + usuarioNombre, 14, 10, "top", "center", 5, 1, "solid",
+                )
+                
+                #Muestra el input del Dinero a Transferir
+                inputDinero.baseInput.pack()
+
+            #Sí no, muestra error
+            else:
+                ventanaError("nombrecodigo_mal")
+
+        #Function Tranferir Dinero a la cuenta
+        def transferirDinero (info):
+            #Info Dinero del usuario
+            balance = userMoneyUpdate("balance")
+            deuda = userMoneyUpdate("deuda")
+
+            #Info cuenta a transferir dinero & dinero
+            cuentaNombre = inputNombre.input.get()
+            dineroTransferencia = int(inputDinero.input.get())
+
+            #Cierra la ventana de Transferir para evitar exploits & errores
+            baseTransferir.destroy()
+
+            if dineroTransferencia <= balance:
+                #Info de la cuenta a transferir
+                cuentaTranRef = db.reference("usuarios/" + cuentaNombre + "/money")
+                cuentaTranData = cuentaTranRef.get()
+                balanceTran = cuentaTranData['balance']
+
+                #Actualizar Info de CuentaTran en dataBase (+ balance)
+                balanceTran += dineroTransferencia
+                cuentaTranRef.update({
+                    'balance': balanceTran,
+                })
+                
+                #Actualizar Info de Usuario en dataBase (- balance)
+                balance -= dineroTransferencia
+                userRef.update({
+                    'money':{
+                        'balance': balance,
+                        'debt': deuda,
+                    }
+                })
+
+                #Base dineroTransferido
+                baseDineroTransferido = t.Toplevel()
+                baseDineroTransferido.title("Dinero Transferido a " + cuentaNombre)
+
+                #Titulo dineroTransferido
+                tituloDineroTransferido = plantilla_titulo(
+                    #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+                    baseDineroTransferido, 2, "solid", 18, "center", "Dinero Transferido a " + cuentaNombre,
+                )
+
+                #Texto dineroTransferido
+                textoDineroTransferido = plantilla_texto()
+                textoDineroTransferido.textoSinBorde(
+                    #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+                    baseDineroTransferido, "Se han transferido $" + str(dineroTransferencia) + " a la cuenta " + cuentaNombre + ".\n Dejando un balance total de $" + str(balance) + " a tu cuenta.",
+                    14, 10, "top", "center", 10,
+                )
+
+                #botón Aceptar
+                btnAceptar = plantilla_botones()
+                btnAceptar.botonAceptar(
+                    #Base botón; Función 
+                    baseDineroTransferido, baseDineroTransferido.destroy,
+                )
+
+        #Base Transferir Dinero
+        baseTransferir =  t.Toplevel()
+        baseTransferir.title("Transferir Dinero a Otra Cuenta")
+
+        #Titulo Transferir Dinero
+        tituloTransferir = plantilla_titulo(
+            #Base de titulo; Tamaño de borde; Tipo de borde; Tamaño letra; Posición; Titular (contenido)
+            baseTransferir, 3, "solid", 18, "center", "Tranferir Dinero a Otra Cuenta"
+        )
+
+        
+        #Texto Transferir Dinero
+        textoTransferir = plantilla_texto()
+        textoTransferir.textoSinBorde(
+            #Base del texto; Mensaje del texto; Tamaño del texto; Padding; Align(side, anchor); Margin
+            baseTransferir, "Ingresa el Nombre y el Código de la Cuenta a la cual vas a Transferir Dinero", 12, 10, "top", "center", 5,
+        )
+
+        #Inputs Nombre y Código
+        inputNombre = plantilla_userInput(
+            #Base del input; Mensaje del label; Status del div(show || hide)   
+            baseTransferir, "Nombre de la Cuenta a Transferir:", "show",
+        )
+        inputNombre.input.bind('<Return>', userCheck)
+
+        inputCodigo = plantilla_userInput(
+            #Base del input; Mensaje del label; Status del div(show || hide)
+            baseTransferir, "Código de la Cuenta a Transferir:", "show",
+        )
+        inputCodigo.input.bind('<Return>', userCheck)
+
+        inputDinero = plantilla_userInput(
+            #Base del input; Mensaje del label; Status del div(show || hide)
+            baseTransferir, "Cantidad de Dinero a Transferir:", "hide",
+        )
+        inputDinero.input.bind('<Return>', transferirDinero)
 
     btnTransferirDinero = plantilla_botones()
     btnTransferirDinero.botonOpciones(
@@ -734,9 +861,9 @@ baseBotonesOpciones.pack(
 
 def menuCrearCuenta ():
     #Check de nombre en data Base
-    def nombreCheck (info):
+    def userCheck (info):
         nombreNuevaCuenta = inputNombre.input.get()
-        if checkUserInfo(1, nombreNuevaCuenta, "password", "codigo") == False:
+        if checkUserInfo(1, nombreNuevaCuenta, "password", "code") == False:
             #Activa el input de Password
             inputPassword.baseInput.pack()
 
@@ -843,7 +970,7 @@ def menuCrearCuenta ():
         #Base del input; Mensaje del label; Status del div(show || hide)
         baseCrearCuenta, "Ingrese el nombre de su nueva Cuenta:", "show"
     )
-    inputNombre.input.bind('<Return>', nombreCheck)
+    inputNombre.input.bind('<Return>', userCheck)
 
     #Input Password (hidden)
     inputPassword = plantilla_userInput(
@@ -860,7 +987,7 @@ btnRegistrarse.botonOpciones(
 
 def menuIniciarSesion ():
     #Check sí nombre esta en db
-    def nombreCheck (info):
+    def userCheck (info):
         nombre = inputNombre.input.get()
         if checkUserInfo(1, nombre, "password", "code") == True:
             #Activa los inputs de Password & Código
@@ -880,7 +1007,7 @@ def menuIniciarSesion ():
         #Cerrar la ventana Iniciar Sesion, para evitar errores
         baseIniciarSesion.destroy()
 
-        if checkUserInfo(2, nombre, password, codigo) == True:
+        if checkUserInfo(2, nombre, password, "code") == True and checkUserInfo(3, nombre, "password", codigo) == True:
             #Base de Iniciar Menu
             baseIniciarMenu = t.Toplevel()
             baseIniciarMenu.title("¡Bienvenido " + nombre + "!")
@@ -934,7 +1061,7 @@ def menuIniciarSesion ():
         #Base del input; Mensaje del label; Status del div(show || hide)
         baseIniciarSesion, "Ingrese el nombre de su cuenta:", "show",
     )
-    inputNombre.input.bind('<Return>', nombreCheck)
+    inputNombre.input.bind('<Return>', userCheck)
 
     #Input Código (Hidden)
     inputCodigo = plantilla_userInput(
@@ -958,9 +1085,9 @@ btnIniciarSesion.botonOpciones(
 
 def menuBorrarCuenta ():
     #Check sí cuenta a borrar existe
-    def nombreCheck (info):
+    def userCheck (info):
         nombre = inputNombre.input.get()
-        if checkUserInfo(1, nombre, "password", "codigo") == True:
+        if checkUserInfo(1, nombre, "password", "code") == True:
             inputCodigo.baseInput.pack()
             inputPassword.baseInput.pack()
 
@@ -977,7 +1104,7 @@ def menuBorrarCuenta ():
         #Cerrar ventana de borrar cuenta, para evitar exploits y errores
         baseBorrarCuenta.destroy()
 
-        if checkUserInfo(2, nombre, password, codigo) == True:
+        if checkUserInfo(2, nombre, password, "code") == True and checkUserInfo(3, nombre, "password", codigo):
             #Borrar usuario de dataBase
             ref.child(nombre).delete()
 
@@ -1030,7 +1157,7 @@ def menuBorrarCuenta ():
         #Base del input; Mensaje del label; Status del div(show || hide)
         baseBorrarCuenta, "Ingrese el nombre de la cuenta a borrar:", "show",
     )
-    inputNombre.input.bind('<Return>', nombreCheck)
+    inputNombre.input.bind('<Return>', userCheck)
 
     #Input Código (hidden)
     inputCodigo = plantilla_userInput(
